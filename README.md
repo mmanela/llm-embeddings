@@ -51,6 +51,16 @@ OPENAI_API_KEY=YOU_KEY_HERE
 ./run.sh -m create -f pair_programming.pdf           
 ```
 
+**Create a model for a pre-defined word list**
+```
+./run.sh -m create_dict
+```
+
+**Query the dictionary word model **
+```
+./run.sh -m query_dict -q "hotdogs are the best food"
+```
+
 **Analyze the embeddings the file leveraging the embeddings model and dictionary model**
 ```
 ./run.sh -m analyze -f pair_programming.pdf               
@@ -69,16 +79,6 @@ OPENAI_API_KEY=YOU_KEY_HERE
 
 ./run.sh -m test -t1 "UFOs are real and have visited earth on many occasions" -t2 "Bigfoot lives in my backyard" -t3 "the NY Jets have had a long losing streak" 
 
-```
-
-**Create a model for a pre-defined word list**
-```
-./run.sh -m create_dict
-```
-
-**Query the dictionary word model **
-```
-./run.sh -m create_dict -q "hotdogs are the best food"
 ```
 
 ## Notes
