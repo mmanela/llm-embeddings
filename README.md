@@ -2,13 +2,32 @@
 
 
 
+## Setup
+
+
+First install Python dependencies
 ```
 cd app
 pip install -r requirements.txt
 ```
 
+Then download NLTK models 
 
-# Mode
+```python
+import nltk
+nltk.download('punkt')
+
+# This is for lemmatization
+nltk.download('wordnet')
+```
+
+Then add a .env file to the root with your OPENAI_API_KEY
+```
+OPENAI_API_KEY=YOU_KEY_HERE
+```
+
+
+## Mode
 
 - **create** - Creates the embeddings model for a given file
 - **query** - Queries the document's embeddings model with a given query to see what it is most similar to
