@@ -26,9 +26,7 @@ def parse_pdf(filename):
     path = os.path.join(FILES_FOLDER, filename)
     if not os.path.exists(path):
         raise FileNotFoundError(f'File {path} not found')
-
-    # chunk_size = 500
-    # chunk_overlap = 50
+ 
     chunk_size = 250
     chunk_overlap = 0
     loader = PyPDFLoader(path)
