@@ -76,6 +76,7 @@ class EmbeddingsModel(object):
             # Pickle the 'data' dictionary using the highest protocol available.
             pickle.dump(embedding_objects, f, pickle.HIGHEST_PROTOCOL)
 
+        # Store the data in a text format for debugging
         with open(paths.get('textStorePath'), 'w', encoding='utf-8') as f:
             json.dump([x.forJson() for x in embedding_objects], f,
                       ensure_ascii=False, indent=4)
