@@ -49,7 +49,7 @@ def main():
     if args.mode == 'extract':
         print(f'Exploring splitting of {filename}')
         texts = parse_pdf(filename)
-        for n in range(0, 5):
+        for n in range(0, 10):
             print(f'\n[SNIPPET {n}]: \n {texts[n].page_content[0:SNIPPET_LENGTH]}')
 
     elif args.mode == 'create':

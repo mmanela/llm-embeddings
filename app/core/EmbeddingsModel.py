@@ -44,9 +44,9 @@ class EmbeddingsModel(object):
 
     def load_model(self, indexOnly: bool = False):
         paths = self._get_paths_for_storage()
-        cached_embeddings = getEmbeddingsProvider(self.provider)
+        cached_embedder = getEmbeddingsProvider(self.provider)
         faiss_index = FAISS.load_local(
-            folder_path=VECTOR_STORE_PATH, index_name=paths.get('qualifiedName'), embeddings=cached_embeddings)
+            folder_path=VECTOR_STORE_PATH, index_name=paths.get('qualifiedName'), embeddings=cached_embedder)
 
         if indexOnly:
             return faiss_index, None, None
@@ -65,9 +65,9 @@ class EmbeddingsModel(object):
             os.remove(paths.get('vectorStoreFaiss'))
             os.remove(paths.get('vectorStorePkl'))
 
-        cached_embeddings = getEmbeddingsProvider(self.provider)
+        cached_embedder = getEmbeddingsProvider(self.provider)
 
-        doc_embeddings = cached_embeddings.embed_documents(texts)
+        doc_embeddings = cached_embedder.embed_documents(texts)
         embedding_objects: list[EmbeddedReference] = []
         for i, embedding in enumerate(doc_embeddings):
             embedding_objects.append(EmbeddedReference(
@@ -80,6 +80,6 @@ class EmbeddingsModel(object):
             json.dump([x.forJson() for x in embedding_objects], f,
                       ensure_ascii=False, indent=4)
 
-        faiss_index = FAISS.from_texts(texts, cached_embeddings)
+        faiss_index = FAISS.from_texts(texts, cached_embedder)
         faiss_index.save_local(VECTOR_STORE_PATH, paths.get('qualifiedName'))
 
