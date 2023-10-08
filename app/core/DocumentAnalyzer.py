@@ -146,7 +146,7 @@ class DocumentAnalyzer(object):
             print(f'Words for cluster {cluster} are {word_and_scores}')
 
             # Use tuple of top two matching words to categorize the groups
-            self.clusterCategory[cluster] = f'({word_and_scores[0]},{word_and_scores[1]})'
+            self.clusterCategory[cluster] = f'{word_and_scores[0]},{word_and_scores[1]}'
 
         self.categories = [self.clusterCategory[x] if x in self.labelSet else None
                            for x in self.clusters.labels_]
