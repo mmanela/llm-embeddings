@@ -144,7 +144,9 @@ class DocumentAnalyzer(object):
             word_and_scores = [(x[0].page_content[0:SNIPPET_LENGTH], x[1])
                                for x in word_matches if x[0].page_content]
             print(f'Words for cluster {cluster} are {word_and_scores}')
-            self.clusterCategory[cluster] = word_and_scores[0]
+
+            # Use tuple of top two matching words to categorize the groups
+            self.clusterCategory[cluster] = f'({word_and_scores[0]},{word_and_scores[1]})'
 
         self.categories = [self.clusterCategory[x] if x in self.labelSet else None
                            for x in self.clusters.labels_]
