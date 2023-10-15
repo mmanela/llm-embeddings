@@ -63,7 +63,7 @@ class DocumentAnalyzer(object):
         color_palette = sns.color_palette('Paired', self.labelCount + 1)
  
         # Scatter plot by first projecting the n-dimensional embeddings into 2D
-        # then by using the cluster from HBSCAN to color the points
+        # then by using the cluster from the cluster to color the points
         cluster_colors = [color_palette[x] if x >= 0
                           else (0.5, 0.5, 0.5)
                           for x in self.clusters.labels_]
@@ -76,7 +76,7 @@ class DocumentAnalyzer(object):
         if (len(projection[0]) == 3):
             ax = fig2.add_subplot(projection='3d')
             ax.scatter(*projection.T, linewidth=0,
-                       c=cluster_member_colors, alpha=1)
+                       c=cluster_member_colors, alpha=1, label=labelStrs)
             ax.set_xlabel('x')
             ax.set_ylabel('y')
             ax.set_zlabel('z')
