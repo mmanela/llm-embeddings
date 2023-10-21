@@ -1,6 +1,4 @@
-import os
-from nltk.stem import PorterStemmer
-
+import os 
 from nltk.stem import WordNetLemmatizer
 
 wnl = WordNetLemmatizer()
