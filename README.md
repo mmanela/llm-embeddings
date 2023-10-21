@@ -1,5 +1,4 @@
-# llm-embeddings
-
+# Exploring LLM Embeddings
 
 
 ## Setup
