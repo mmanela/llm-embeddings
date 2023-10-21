@@ -81,17 +81,7 @@ OPENAI_API_KEY=YOU_KEY_HERE
 ```
 
 ## Notes
-
-### NTLK
-For nltk, must first download the lang model
-```python
-import nltk
-nltk.download('punkt')
-
-# This is for lemmatization
-nltk.download('wordnet')
-```
-
+ 
 
 ### SPACY
 FOr spacy you must download a lang model
