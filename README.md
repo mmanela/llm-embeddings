@@ -88,7 +88,7 @@ OPENAI_API_KEY=YOU_KEY_HERE
  
 
 ### SPACY
-FOr spacy you must download a lang model
+For spacy you must download a lang model
 ```
 python -m spacy download en_core_web_sm
 ```
