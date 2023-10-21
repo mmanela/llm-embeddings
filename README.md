@@ -91,7 +91,7 @@ OPENAI_API_KEY=YOU_KEY_HERE
  
 
 ### SPACY
-For spacy you must download a lang model
+If you want to use spacy instead of NLTK for text splitting you must download it's language model
 ```
 python -m spacy download en_core_web_sm
 ```
