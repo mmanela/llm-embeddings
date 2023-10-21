@@ -1,9 +1,9 @@
 # Exploring LLM Embeddings
 
-# Blog post
+## Blog post
 Read my [blog post]() which describes the details of this project.  
 
-# Built with
+## Built with
 - Python 3.11.1
 - pip 23.2.1
 
