@@ -1,6 +1,10 @@
 # Exploring LLM Embeddings
 
+# Built with
+- Python 3.11.1
+- pip 23.2.1
 
+  
 ## Setup
 
 
