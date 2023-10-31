@@ -12,4 +12,4 @@ do
     C="$C $i"
 done
  
-sh -c "python3 app/app.py $C"
+sh -c "python app/app.py $C"
