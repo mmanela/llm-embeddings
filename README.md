@@ -1,7 +1,7 @@
 # Exploring LLM Embeddings
 
 ## Blog post
-Read my [blog post]() which describes the details of this project.  
+Read my [blog post](https://matthewmanela.com/blog/exploring-the-power-of-llm-embeddings) which describes the details of this project.  
 
 ## Built with
 - Python 3.11.1
