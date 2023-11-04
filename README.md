@@ -68,6 +68,7 @@ OPENAI_API_KEY=YOU_KEY_HERE
 ```
 
 **Analyze the embeddings the file leveraging the embeddings model and dictionary model**
+This leads to unexpected results which may mean simply negating the embeddings is not enough to get the opposite meaning 
 ```
 ./run.sh -m analyze -f pair_programming.pdf               
 ```
