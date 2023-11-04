@@ -3,8 +3,9 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter, NLTKTextSplitter, SpacyTextSplitter
 import os
 import dotenv
-import numpy as np 
+import numpy as np
 import pandas as pd
+import random
 from scipy.spatial import distance
 from core.DocumentAnalyzer import DocumentAnalyzer
 from core.EmbeddingsModel import EmbeddingsModel
@@ -16,17 +17,18 @@ dotenv.load_dotenv()
 
 FILES_FOLDER = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), os.pardir, "files")
- 
+
 WORDS_DICT_NAME = "scowl10to70_lemmatization"
 WORDS_FILE_PATH = os.path.join(FILES_FOLDER, f"{WORDS_DICT_NAME}.txt")
 
 SNIPPET_LENGTH = 100
 
+
 def parse_pdf(filename):
     path = os.path.join(FILES_FOLDER, filename)
     if not os.path.exists(path):
         raise FileNotFoundError(f'File {path} not found')
- 
+
     chunk_size = 250
     chunk_overlap = 0
     loader = PyPDFLoader(path)
@@ -50,7 +52,8 @@ def main():
         print(f'Exploring splitting of {filename}')
         texts = parse_pdf(filename)
         for n in range(0, 10):
-            print(f'\n[SNIPPET {n}]: \n {texts[n].page_content[0:SNIPPET_LENGTH]}')
+            print(
+                f'\n[SNIPPET {n}]: \n {texts[n].page_content[0:SNIPPET_LENGTH]}')
 
     elif args.mode == 'create':
         print(f'Creating new embeddings into store {name}')
@@ -98,38 +101,84 @@ def main():
         wordModel = EmbeddingsModel(provider, WORDS_DICT_NAME)
         wordModel.build_and_persist_model(words)
 
-    elif args.mode == 'query_word':
+    elif args.mode == 'word_walk':
+
+        # Word walk steps in a small increment across all dimensions of the embedding 
+        # for a number of steps. It will then find the nearest words to the resulting
+        # vector and display them.
+        STEP_SIZE = 0.1
+        STEP_COUNT = 5
+
         word = args.query.strip()
         print(
-            f'Finding conceptual antonym to word {word} in store {WORDS_DICT_NAME}')
-        
+            f'Performing a walk in vector space for {word} in store {WORDS_DICT_NAME}')
+
         wordModel = EmbeddingsModel(provider, WORDS_DICT_NAME)
         words_index, embedding_objects, _ = wordModel.load_model()
- 
+
         word_objs = [x for x in embedding_objects if x.content == word]
         if len(word_objs) == 0:
             print(f'Word {word} not found in dictionary store')
             return
-        
+
+        word_obj = word_objs[0]
+        word_embedding = np.array(word_obj.embedding)
+        negative_step_embedding = word_embedding
+        positive_step_embedding = word_embedding
+
+        # We take a step in both directions each iteration
+        for i in range(0, STEP_COUNT):
+            negative_step_embedding = negative_step_embedding - STEP_SIZE
+            positive_step_embedding = positive_step_embedding + STEP_SIZE
+
+            positive_step_scores = words_index.max_marginal_relevance_search_with_score_by_vector(
+                embedding=positive_step_embedding, k=3)
+            negative_step_scores = words_index.max_marginal_relevance_search_with_score_by_vector(
+                embedding=negative_step_embedding, k=3)
+
+            positive_word_matches = [(x[0].page_content, x[1])
+                                 for x in positive_step_scores if x[0].page_content]
+            negative_step_scores = [(x[0].page_content, x[1])
+                                 for x in negative_step_scores if x[0].page_content]
+
+            print(f'\nWalk step {i+1} with step size {STEP_SIZE}')
+            print(f'Positive step')
+            print(positive_word_matches)
+            print(f'Negative step')
+            print(negative_step_scores)
+
+    elif args.mode == 'query_word':
+        word = args.query.strip()
+        print(
+            f'Finding near and inverse matching words for {word} in store {WORDS_DICT_NAME}')
+
+        wordModel = EmbeddingsModel(provider, WORDS_DICT_NAME)
+        words_index, embedding_objects, _ = wordModel.load_model()
+
+        word_objs = [x for x in embedding_objects if x.content == word]
+        if len(word_objs) == 0:
+            print(f'Word {word} not found in dictionary store')
+            return
+
         word_obj = word_objs[0]
 
         # Invert the embedding to find conceptual opposites
         word_embedding = np.array(word_obj.embedding)
         word_embedding_inverse = word_embedding * -1
-        docs_and_scores_sim = words_index.max_marginal_relevance_search_with_score_by_vector(embedding=word_embedding, k=5)
-        docs_and_scores_diff = words_index.max_marginal_relevance_search_with_score_by_vector(embedding=word_embedding_inverse, k=5)
+        docs_and_scores_sim = words_index.max_marginal_relevance_search_with_score_by_vector(
+            embedding=word_embedding, k=5)
+        docs_and_scores_diff = words_index.max_marginal_relevance_search_with_score_by_vector(
+            embedding=word_embedding_inverse, k=5)
 
-            
         snippet_and_score_sim = [(x[0].page_content, x[1])
-                             for x in docs_and_scores_sim if x[0].page_content]
+                                 for x in docs_and_scores_sim if x[0].page_content]
         snippet_and_score_diff = [(x[0].page_content, x[1])
-                             for x in docs_and_scores_diff if x[0].page_content]
-        
+                                  for x in docs_and_scores_diff if x[0].page_content]
+
         print(f'\nMost similar words')
         print(snippet_and_score_sim)
-        print(f'\nMost different words')
+        print(f'\nInverse matching words')
         print(snippet_and_score_diff)
-        
 
     elif args.mode == 'query_dict':
         query = args.query
@@ -142,9 +191,8 @@ def main():
         docs_and_scores = words_index.similarity_search_with_score(query, 3)
         snippet_and_score = [(x[0].page_content, x[1])
                              for x in docs_and_scores if x[0].page_content]
-        
-        print(snippet_and_score)
 
+        print(snippet_and_score)
 
     elif args.mode == 'test':
         test1: str = args.test1
@@ -172,14 +220,14 @@ def main():
         })
 
         print(dist_frame)
- 
+
 
 parser = argparse.ArgumentParser(
     prog='Embedding Exploration',
     description='Explore the world of emdeddings')
 parser.add_argument('-f', '--filename', required=False)
 parser.add_argument(
-    '-m', '--mode', choices=['create', 'analyze', 'query', 'extract', 'test', 'create_dict', 'query_dict', 'query_word'])
+    '-m', '--mode', choices=['create', 'analyze', 'query', 'extract', 'test', 'create_dict', 'query_dict', 'query_word', 'word_walk'])
 parser.add_argument('-p', '--provider', choices=['openai'], default='openai')
 parser.add_argument('-q', '--query', required=False)
 parser.add_argument('-t1', '--test1', required=False)
