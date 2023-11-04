@@ -78,7 +78,7 @@ def main():
         print(f'Querying existing store {name} with query {query}')
 
         docModel = EmbeddingsModel(provider, filename)
-        faiss_index, embedding_objects, embeddings_list = docModel.load_model()
+        faiss_index, embedding_objects, _ = docModel.load_model()
 
         docs_and_scores = faiss_index.similarity_search_with_score(query, 3)
         snippet_and_score = [(x[0].page_content[0:SNIPPET_LENGTH], x[1])
@@ -98,6 +98,39 @@ def main():
         wordModel = EmbeddingsModel(provider, WORDS_DICT_NAME)
         wordModel.build_and_persist_model(words)
 
+    elif args.mode == 'query_word':
+        word = args.query.strip()
+        print(
+            f'Finding conceptual antonym to word {word} in store {WORDS_DICT_NAME}')
+        
+        wordModel = EmbeddingsModel(provider, WORDS_DICT_NAME)
+        words_index, embedding_objects, _ = wordModel.load_model()
+ 
+        word_objs = [x for x in embedding_objects if x.content == word]
+        if len(word_objs) == 0:
+            print(f'Word {word} not found in dictionary store')
+            return
+        
+        word_obj = word_objs[0]
+
+        # Invert the embedding to find conceptual opposites
+        word_embedding = np.array(word_obj.embedding)
+        word_embedding_inverse = word_embedding * -1
+        docs_and_scores_sim = words_index.max_marginal_relevance_search_with_score_by_vector(embedding=word_embedding, k=5)
+        docs_and_scores_diff = words_index.max_marginal_relevance_search_with_score_by_vector(embedding=word_embedding_inverse, k=5)
+
+            
+        snippet_and_score_sim = [(x[0].page_content, x[1])
+                             for x in docs_and_scores_sim if x[0].page_content]
+        snippet_and_score_diff = [(x[0].page_content, x[1])
+                             for x in docs_and_scores_diff if x[0].page_content]
+        
+        print(f'\nMost similar words')
+        print(snippet_and_score_sim)
+        print(f'\nMost different words')
+        print(snippet_and_score_diff)
+        
+
     elif args.mode == 'query_dict':
         query = args.query
         print(
@@ -107,9 +140,11 @@ def main():
         words_index, _, _ = wordModel.load_model(True)
 
         docs_and_scores = words_index.similarity_search_with_score(query, 3)
-        snippet_and_score = [(x[0].page_content[0:SNIPPET_LENGTH], x[1])
+        snippet_and_score = [(x[0].page_content, x[1])
                              for x in docs_and_scores if x[0].page_content]
+        
         print(snippet_and_score)
+
 
     elif args.mode == 'test':
         test1: str = args.test1
@@ -144,7 +179,7 @@ parser = argparse.ArgumentParser(
     description='Explore the world of emdeddings')
 parser.add_argument('-f', '--filename', required=False)
 parser.add_argument(
-    '-m', '--mode', choices=['create', 'analyze', 'query', 'extract', 'test', 'create_dict', 'query_dict'])
+    '-m', '--mode', choices=['create', 'analyze', 'query', 'extract', 'test', 'create_dict', 'query_dict', 'query_word'])
 parser.add_argument('-p', '--provider', choices=['openai'], default='openai')
 parser.add_argument('-q', '--query', required=False)
 parser.add_argument('-t1', '--test1', required=False)

@@ -139,8 +139,8 @@ class DocumentAnalyzer(object):
             print(f'Centroid for cluster {cluster} is {mean}')
 
             # Use centroid to find a single word to summarize the cluster
-            word_matches = self.words_index.similarity_search_with_score_by_vector(
-                mean, 3)
+            word_matches = self.words_index.max_marginal_relevance_search_with_score_by_vector(
+                embedding=mean, k=3)
             word_and_scores = [(x[0].page_content[0:SNIPPET_LENGTH], x[1])
                                for x in word_matches if x[0].page_content]
             print(f'Words for cluster {cluster} are {word_and_scores}')

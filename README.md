@@ -87,6 +87,11 @@ OPENAI_API_KEY=YOU_KEY_HERE
 
 ```
 
+Query a single word in the dict and see the most similar and different words based on its embedding
+```
+./run.sh -m query_word -q eating  
+```
+
 ## Notes
  
 
