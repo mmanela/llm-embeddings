@@ -101,6 +101,41 @@ def main():
         wordModel = EmbeddingsModel(provider, WORDS_DICT_NAME)
         wordModel.build_and_persist_model(words)
 
+    elif args.mode == 'word_midpoint':
+        word1 = args.query.strip()
+        word2 = args.query2.strip()
+        print(
+            f'Calculating a word mid-point between {word1} and {word2} in store {WORDS_DICT_NAME}')
+
+        wordModel = EmbeddingsModel(provider, WORDS_DICT_NAME)
+        words_index, embedding_objects, _ = wordModel.load_model()
+
+        word1_objs = [x for x in embedding_objects if x.content == word1]
+        if len(word1_objs) == 0:
+            print(f'Word {word1} not found in dictionary store')
+            return
+        
+        word1_obj = word1_objs[0]
+        word1_embedding = np.array(word1_obj.embedding)
+
+        word2_objs = [x for x in embedding_objects if x.content == word2]
+        if len(word2_objs) == 0:
+            print(f'Word {word2} not found in dictionary store')
+            return
+        
+        word2_obj = word2_objs[0]
+        word2_embedding = np.array(word2_obj.embedding)
+
+        midpoint_embedding = (word1_embedding + word2_embedding) / 2
+
+        docs_and_scores = words_index.max_marginal_relevance_search_with_score_by_vector(
+                        embedding=midpoint_embedding, k=5)
+        snippet_and_score = [(x[0].page_content, x[1])
+                             for x in docs_and_scores if x[0].page_content]
+        print(snippet_and_score)
+
+
+
     elif args.mode == 'word_walk':
 
         # Word walk steps in a small increment across all dimensions of the embedding 
@@ -227,9 +262,10 @@ parser = argparse.ArgumentParser(
     description='Explore the world of emdeddings')
 parser.add_argument('-f', '--filename', required=False)
 parser.add_argument(
-    '-m', '--mode', choices=['create', 'analyze', 'query', 'extract', 'test', 'create_dict', 'query_dict', 'query_word', 'word_walk'])
+    '-m', '--mode', choices=['create', 'analyze', 'query', 'extract', 'test', 'create_dict', 'query_dict', 'query_word', 'word_walk', 'word_midpoint'])
 parser.add_argument('-p', '--provider', choices=['openai'], default='openai')
 parser.add_argument('-q', '--query', required=False)
+parser.add_argument('-q2', '--query2', required=False)
 parser.add_argument('-t1', '--test1', required=False)
 parser.add_argument('-t2', '--test2', required=False)
 parser.add_argument('-t3', '--test3', required=False)

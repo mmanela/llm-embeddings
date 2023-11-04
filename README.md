@@ -94,6 +94,11 @@ Query a single word in the dict and see the most similar and different words bas
 ./run.sh -m query_word -q eating  
 ```
 
+Find the words representing the mid-point of the embeddings of two words
+```
+./run.sh -m word_midpoint -q dread -q2 hope
+```
+
 ## Notes
  
 
